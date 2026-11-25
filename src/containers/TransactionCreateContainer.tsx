@@ -17,6 +17,8 @@ import {
 import { AuthMachineContext, AuthMachineEvents, AuthMachineSchema } from "../machines/authMachine";
 import { SnackbarSchema, SnackbarContext, SnackbarEvents } from "../machines/snackbarMachine";
 import { Stepper, Step, StepLabel } from "@mui/material";
+import { httpClient } from "../utils/asyncUtils";
+import { backendPort } from "../utils/portUtils";
 
 export interface Props {
   authService: Interpreter<AuthMachineContext, AuthMachineSchema, AuthMachineEvents, any, any>;
@@ -51,12 +53,20 @@ const TransactionCreateContainer: React.FC<Props> = ({ authService, snackbarServ
     // @ts-ignore
     sendCreateTransaction({ type: "SET_USERS", sender, receiver });
   };
-  const createTransaction = (payload: TransactionPayload) => {
-    sendCreateTransaction("CREATE", payload);
-  };
   const userListSearch = debounce(200, (payload: any) => sendUsers({ type: "FETCH", ...payload }));
 
   const showSnackbar = (payload: SnackbarContext) => sendSnackbar({ type: "SHOW", ...payload });
+
+  const createTransaction = async (payload: TransactionPayload) => {
+    try {
+      await httpClient.post(`http://localhost:${backendPort}/transactions`, payload);
+      authService.send("REFRESH");
+      showSnackbar({ severity: "success", message: "Transaction Submitted!" });
+      sendCreateTransaction("CREATE", payload);
+    } catch (error: any) {
+      showSnackbar({ severity: "error", message: "Transaction failed. Please try again." });
+    }
+  };
 
   let activeStep;
   if (createTransactionState.matches("stepTwo")) {
@@ -92,7 +102,6 @@ const TransactionCreateContainer: React.FC<Props> = ({ authService, snackbarServ
           receiver={createTransactionState.context.receiver}
           sender={sender}
           createTransaction={createTransaction}
-          showSnackbar={showSnackbar}
         />
       )}
       {createTransactionState.matches("stepThree") && (

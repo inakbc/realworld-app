@@ -1,10 +1,5 @@
-import { omit } from "lodash/fp";
 import { Machine, assign } from "xstate";
-import { dataMachine } from "./dataMachine";
-import { httpClient } from "../utils/asyncUtils";
 import { User, TransactionCreatePayload } from "../models";
-import { authService } from "./authMachine";
-import { backendPort } from "../utils/portUtils";
 
 export interface CreateTransactionMachineSchema {
   states: {
@@ -13,17 +8,6 @@ export interface CreateTransactionMachineSchema {
     stepThree: {};
   };
 }
-
-const transactionDataMachine = dataMachine("transactionData").withConfig({
-  services: {
-    createData: async (ctx, event: any) => {
-      const payload = omit("type", event);
-      const resp = await httpClient.post(`http://localhost:${backendPort}/transactions`, payload);
-      authService.send("REFRESH");
-      return resp.data;
-    },
-  },
-});
 
 export type CreateTransactionMachineEvents =
   | { type: "SET_USERS" }
@@ -53,11 +37,6 @@ export const createTransactionMachine = Machine<
       },
       stepTwo: {
         entry: "setSenderAndReceiver",
-        invoke: {
-          id: "transactionDataMachine",
-          src: transactionDataMachine,
-          autoForward: true,
-        },
         on: {
           CREATE: "stepThree",
         },
