@@ -74,6 +74,21 @@
       "balance": 49474,
       "createdAt": "2023-12-07T04:39:38.383Z",
       "modifiedAt": "2024-03-07T00:07:36.510Z"
+    },
+    {
+      "id": "zFhM79VQb",
+      "uuid": "e53d7073-557a-4aa1-b8bf-b51b6d485622",
+      "firstName": "Priya",
+      "lastName": "Natarajan",
+      "username": "Priya_Natarajan",
+      "password": "$2a$10$c/XI42kA/AaWJeEzqaxk5O4WHg/9JdKjTdX6oc24/7JI0KGv4yvky",
+      "email": "Priya.Natarajan@example.com",
+      "phoneNumber": "555-204-7711",
+      "balance": 100000,
+      "avatar": "https://api.dicebear.com/9.x/pixel-art/svg?seed=Priya",
+      "defaultPrivacyLevel": "public",
+      "createdAt": "2026-11-01T21:17:41.055Z",
+      "modifiedAt": "2026-11-01T21:17:41.055Z"
     }
   ],
   "contacts": [
@@ -253,6 +268,17 @@
       "isDeleted": false,
       "createdAt": "2024-01-26T14:01:01.815Z",
       "modifiedAt": "2024-03-07T08:44:31.174Z"
+    },
+    {
+      "id": "8_8Keq-PJ",
+      "uuid": "06c6172c-6601-43c6-8296-049d07fca4d9",
+      "userId": "zFhM79VQb",
+      "bankName": "Test Bank",
+      "accountNumber": "123456789",
+      "routingNumber": "987654321",
+      "isDeleted": false,
+      "createdAt": "2026-11-02T01:33:46.880Z",
+      "modifiedAt": "2026-11-02T01:33:46.880Z"
     }
   ],
   "transactions": [
@@ -10986,4 +11012,3 @@
     }
   ]
 }
-
