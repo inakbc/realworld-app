@@ -13,7 +13,7 @@ import {
   ValuePiece,
 } from "../models";
 import { faker } from "@faker-js/faker";
-import { dinero, toDecimal, add, subtract, isPositive, toSnapshot, USD } from "dinero.js";
+import { dinero, toDecimal, add, subtract, isPositive, isZero, toSnapshot, USD } from "dinero.js";
 import {
   flow,
   get,
@@ -97,8 +97,10 @@ export const getTransferAmount = curry((sender: User, transaction: Transaction) 
 export const getPayAppCreditedAmount = (receiver: User, transaction: Transaction) =>
   Math.abs(toSnapshot(payAppAddition(receiver, transaction)).amount);
 
-export const hasSufficientFunds = (sender: User, transaction: Transaction) =>
-  isPositive(payAppDifference(sender, transaction));
+export const hasSufficientFunds = (sender: User, transaction: Transaction) => {
+  const difference = payAppDifference(sender, transaction);
+  return isPositive(difference) || isZero(difference);
+};
 
 /* istanbul ignore next */
 export const receiverIsCurrentUser = (currentUser: User, transaction: Transaction) =>

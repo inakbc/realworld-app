@@ -17,6 +17,7 @@ import {
   filter,
   inRange,
   remove,
+  isEmpty,
 } from "lodash/fp";
 import { isWithinInterval } from "date-fns";
 import low from "lowdb";
@@ -492,6 +493,14 @@ export const debitPayAppBalance = (user: User, transaction: Transaction) => {
   if (hasSufficientFunds(user, transaction)) {
     flow(getChargeAmount, savePayAppBalance(user))(user, transaction);
   } else {
+    const linkedBankAccounts = getBankAccountsByUserId(user.id);
+    const activeBankAccounts = reject("isDeleted", linkedBankAccounts);
+    if (isEmpty(activeBankAccounts)) {
+      throw new Error(
+        `Insufficient pay-app balance and no linked bank account for user ${user.id}; transaction ${transaction.id} rejected.`
+      );
+    }
+
     /* istanbul ignore next */
     flow(
       getTransferAmount(user),
@@ -581,8 +590,10 @@ export const updateTransactionById = (transactionId: string, edits: Partial<Tran
   const sender = getUserById(senderId);
   const receiver = getUserById(receiverId);
 
-  // if payment, debit sender's balance for payment amount
-  if (isRequestTransaction(transaction)) {
+  // Only an accepted request moves money. Rejecting one must leave both
+  // balances untouched — isRequestTransaction alone doesn't distinguish
+  // accept from reject, since both actions PATCH the same transaction.
+  if (isRequestTransaction(transaction) && edits.requestStatus === TransactionRequestStatus.accepted) {
     debitPayAppBalance(receiver, transaction);
     creditPayAppBalance(sender, transaction);
     edits.status = TransactionStatus.complete;
