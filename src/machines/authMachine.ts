@@ -279,3 +279,9 @@ export const authService = interpret(authMachine)
     }
   })
   .start(resolvedState);
+
+// Resuming from a cached authenticated session must not trust stale cached
+// user data (e.g. balance) indefinitely — force one fresh fetch on boot.
+if (resolvedState && resolvedState.matches("authorized")) {
+  authService.send("REFRESH");
+}
